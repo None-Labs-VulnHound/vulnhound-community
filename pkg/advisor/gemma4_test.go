@@ -75,4 +75,22 @@ func TestGemmaAdvisorAPIKeyValidation(t *testing.T) {
 	if !strings.Contains(err.Error(), "API Key is required") {
 		t.Fatalf("expected API Key error, got %v", err)
 	}
+
+	// Test model whitelist enforcement: unauthorized models like gemini-1.5-pro must be blocked
+	_, err = NewGemmaAdvisor("test-key", "gemini-1.5-pro")
+	if err == nil {
+		t.Fatalf("expected error when unauthorized non-Gemma model is passed")
+	}
+	if !strings.Contains(err.Error(), "unauthorized model target") {
+		t.Fatalf("expected unauthorized model error, got %v", err)
+	}
+
+	// Test valid hardcoded default model
+	adv, err := NewGemmaAdvisor("test-key", "")
+	if err != nil {
+		t.Fatalf("failed to initialize advisor with default model: %v", err)
+	}
+	if adv.Model != DefaultGemmaModel {
+		t.Fatalf("expected default model %s, got %s", DefaultGemmaModel, adv.Model)
+	}
 }

@@ -13,6 +13,18 @@ import (
 	"github.com/None-Labs-VulnHound/vulnhound-community/pkg/models"
 )
 
+// Hardcoded official Gemma 4 model targets to prevent arbitrary or paid model invocations.
+const (
+	DefaultGemmaModel = "gemma-4-31b-it"
+)
+
+// AllowedGemmaModels defines the strict whitelist of authorized Gemma 4 models.
+var AllowedGemmaModels = map[string]bool{
+	"gemma-4-31b-it": true,
+	"gemma-4-27b-it": true,
+	"gemma-4-9b-it":  true,
+}
+
 // GemmaAdvisor connects to Google AI Studio to synthesize multilingual security advisories.
 type GemmaAdvisor struct {
 	APIKey     string
@@ -20,7 +32,7 @@ type GemmaAdvisor struct {
 	HTTPClient *http.Client
 }
 
-// NewGemmaAdvisor initializes a Google AI Studio client with BYOK (Bring Your Own Key).
+// NewGemmaAdvisor initializes a Google AI Studio client with BYOK and strict Gemma 4 model enforcement.
 func NewGemmaAdvisor(apiKey string, model string) (*GemmaAdvisor, error) {
 	if apiKey == "" {
 		apiKey = os.Getenv("GEMINI_API_KEY")
@@ -32,8 +44,12 @@ func NewGemmaAdvisor(apiKey string, model string) (*GemmaAdvisor, error) {
 		return nil, fmt.Errorf("Google AI Studio API Key is required (set GEMINI_API_KEY or use --api-key)")
 	}
 
+	// Strictly hardcode and enforce Gemma 4 model target
 	if model == "" {
-		model = "gemma-4-31b-it" // Default to Gemma 4 instruction tuned
+		model = DefaultGemmaModel
+	}
+	if !AllowedGemmaModels[model] {
+		return nil, fmt.Errorf("unauthorized model target %q: VulnHound strictly enforces official Gemma 4 models (e.g. %s)", model, DefaultGemmaModel)
 	}
 
 	return &GemmaAdvisor{
