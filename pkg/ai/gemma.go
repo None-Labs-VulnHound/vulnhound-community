@@ -79,25 +79,25 @@ func (g *GemmaAdvisor) RenderOfflineTemplate(vuln models.Vulnerability, cweInfo 
 			cweName = fmt.Sprintf("%s (%s)", cweInfo.ID, cweInfo.Name)
 			cweDesc = cweInfo.Description
 		}
-		return fmt.Sprintf(`### 🔒 [Gemma 4] 기밀 보안 권고문 (Confidential Advisory)
+		return fmt.Sprintf(`### 🔒 [Gemma 4] Confidential Security Advisory
 
-* **식별자 (CVE ID)**: %s
-* **심각도 (Severity)**: %s (CVSS Score: %.1f)
-* **약점 분류 (CWE)**: %s
+* **Identifier (CVE ID)**: %s
+* **Severity**: %s (CVSS Score: %.1f)
+* **Weakness Class (CWE)**: %s
 
 ---
 
-#### 📌 개요 및 영향도 분석
+#### 📌 Overview & Impact Analysis
 %s
 
-#### 🔍 기술적 세부 사항 및 원인
-약점 분류 %s와 연관되어 있으며, 외부 입력 검증 누락 또는 신뢰할 수 없는 데이터 처리로 인해 발생합니다.
+#### 🔍 Technical Details & Root Cause
+Associated with weakness class %s, resulting from missing input validation or unsafe data handling.
 %s
 
-#### 🛠️ 권장 대응 방안 및 패치 가이드
+#### 🛠️ Recommended Mitigations & Patch Guide
 - %s
-- 의존성 라이브러리를 최신 패치 버전으로 업데이트하십시오.
-- 최소 권한 원칙(Least Privilege)을 적용하여 실행 권한을 축소하십시오.
+- Upgrade affected dependencies to the latest secure version.
+- Enforce the principle of least privilege to restrict execution context.
 `, vuln.ID, vuln.Severity, vuln.CVSSv3Score, cweName, vuln.Description, cweName, cweDesc, vuln.Remediation)
 
 	case "japanese", "ja", "jp":

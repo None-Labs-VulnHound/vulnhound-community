@@ -90,10 +90,10 @@ type aiStudioResponse struct {
 	} `json:"error,omitempty"`
 }
 
-// GenerateSecurityAdvisory produces an AppSec report in the requested language (ko, en, ja).
+// GenerateSecurityAdvisory produces an AppSec report in the requested language (en, ko, ja).
 func (g *GemmaAdvisor) GenerateSecurityAdvisory(codeSnippet string, matches []models.Vulnerability, lang string) (string, error) {
 	if lang == "" {
-		lang = "ko"
+		lang = "en"
 	}
 
 	var matchContext strings.Builder
@@ -106,12 +106,12 @@ func (g *GemmaAdvisor) GenerateSecurityAdvisory(codeSnippet string, matches []mo
 Your task is to analyze user-provided source code together with matched RAG vulnerability intelligence (CVE/CWE) and produce a professional, actionable Security Advisory Report.
 
 Requirements:
-1. Output language MUST strictly be in: ` + lang + ` (Korean for 'ko', English for 'en', Japanese for 'ja').
+1. Output language MUST strictly be in: ` + lang + ` (English for 'en', Korean for 'ko', Japanese for 'ja').
 2. Structure:
-   - 📌 Executive Summary (개요 및 위험도)
-   - 🔍 Detailed Vulnerability Breakdown (식별된 취약점 상세 분석 & 위험 라인)
-   - 🛠️ Remediation / Secure Code Patch (조치 방안 및 안전한 수정 코드)
-   - 📚 Referenced Standards (연계된 CVE/CWE 레퍼런스)
+   - 📌 Executive Summary
+   - 🔍 Detailed Vulnerability Breakdown
+   - 🛠️ Remediation / Secure Code Patch
+   - 📚 Referenced Standards
 3. Maintain zero hallucinations by strictly anchoring your findings to the provided RAG context.`
 
 	userPrompt := fmt.Sprintf("Source Code Under Audit:\n```\n%s\n```\n\nMatched RAG Vulnerability Intelligence:\n%s\n\nPlease generate the comprehensive Security Advisory Report now.",

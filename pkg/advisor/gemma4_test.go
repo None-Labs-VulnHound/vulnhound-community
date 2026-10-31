@@ -30,7 +30,7 @@ func TestGemmaAdvisorMockGenerate(t *testing.T) {
 						Parts: []struct {
 							Text string `json:"text"`
 						}{
-							{Text: "### 📌 보안 권고문 (Security Advisory)\n\n**식별된 취약점**: CWE-89 SQL 인젝션\n**조치 방안**: Prepared Statement 적용 필요."},
+							{Text: "### 📌 Security Advisory\n\n**Identified Vulnerability**: CWE-89 SQL Injection\n**Remediation**: Prepared Statement required."},
 						},
 					},
 				},
