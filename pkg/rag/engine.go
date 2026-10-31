@@ -12,17 +12,19 @@ import (
 
 // Engine is an in-memory high-speed hybrid keyword & vector RAG engine.
 type Engine struct {
-	mu    sync.RWMutex
-	vulns []models.Vulnerability
-	byID  map[string]models.Vulnerability
-	byCWE map[string][]models.Vulnerability
+	mu          sync.RWMutex
+	vulns       []models.Vulnerability
+	byID        map[string]models.Vulnerability
+	byCWE       map[string][]models.Vulnerability
+	vectorStore *VectorStore
 }
 
 // NewEngine creates an initialized RAG Engine with vulnerability items.
 func NewEngine(initialVulns []models.Vulnerability) *Engine {
 	e := &Engine{
-		byID:  make(map[string]models.Vulnerability),
-		byCWE: make(map[string][]models.Vulnerability),
+		byID:        make(map[string]models.Vulnerability),
+		byCWE:       make(map[string][]models.Vulnerability),
+		vectorStore: NewVectorStore(),
 	}
 	e.Index(initialVulns)
 	return e
@@ -34,12 +36,21 @@ func (e *Engine) Index(items []models.Vulnerability) {
 	defer e.mu.Unlock()
 
 	for _, v := range items {
-		e.byID[strings.ToUpper(v.ID)] = v
+		upperID := strings.ToUpper(v.ID)
+		e.byID[upperID] = v
 		for _, c := range v.CWEIDs {
 			cweUpper := strings.ToUpper(c)
 			e.byCWE[cweUpper] = append(e.byCWE[cweUpper], v)
 		}
 		e.vulns = append(e.vulns, v)
+
+		// Register pre-computed embedding
+		if len(v.VectorEmbedding) > 0 {
+			e.vectorStore.Add(upperID, v.VectorEmbedding)
+		} else {
+			synVec := GenerateSyntheticEmbedding(v.ID+" "+v.Description, 384)
+			e.vectorStore.Add(upperID, synVec)
+		}
 	}
 }
 
