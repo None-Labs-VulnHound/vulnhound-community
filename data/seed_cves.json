@@ -1,0 +1,78 @@
+[
+  {
+    "id": "CVE-2024-3094",
+    "source": "NVD",
+    "published_at": "2024-03-29T00:00:00Z",
+    "modified_at": "2024-04-01T00:00:00Z",
+    "description": "Malicious code was discovered in the upstream tarballs of xz, starting with version 5.6.0. Through a series of complex obfuscations, the liblzma build process extracts a prebuilt test file contained within the source code, which modified the openSSH sshd function.",
+    "cwe_ids": ["CWE-502", "CWE-78"],
+    "cvss_v3_score": 10.0,
+    "severity": "CRITICAL",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2024-3094",
+      "https://tukaani.org/xz-backdoor/"
+    ],
+    "remediation": "Downgrade xz-utils to version 5.4.6 or update to 5.6.1+ where compromised build scripts have been purged."
+  },
+  {
+    "id": "CVE-2023-4863",
+    "source": "NVD",
+    "published_at": "2023-09-12T00:00:00Z",
+    "modified_at": "2023-09-25T00:00:00Z",
+    "description": "Heap buffer overflow in libwebp in Google Chrome and WebP decoder allowed remote attackers to perform an out of bounds memory write via a crafted HTML page.",
+    "cwe_ids": ["CWE-787"],
+    "cvss_v3_score": 8.8,
+    "severity": "HIGH",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2023-4863"
+    ],
+    "remediation": "Upgrade libwebp to 1.3.2 or later."
+  },
+  {
+    "id": "CVE-2023-38545",
+    "source": "NVD",
+    "published_at": "2023-10-18T00:00:00Z",
+    "modified_at": "2023-10-25T00:00:00Z",
+    "description": "This flaw makes curl overflow a heap based buffer in the SOCKS5 proxy handshake, allowing remote code execution under specific network configurations.",
+    "cwe_ids": ["CWE-122"],
+    "cvss_v3_score": 9.8,
+    "severity": "CRITICAL",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "references": [
+      "https://curl.se/docs/CVE-2023-38545.html"
+    ],
+    "remediation": "Upgrade curl to version 8.4.0 or disable SOCKS5 proxy hostname resolution."
+  },
+  {
+    "id": "CVE-2021-44228",
+    "source": "NVD",
+    "published_at": "2021-12-10T00:00:00Z",
+    "modified_at": "2021-12-14T00:00:00Z",
+    "description": "Apache Log4j2 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints (Log4Shell).",
+    "cwe_ids": ["CWE-502", "CWE-20"],
+    "cvss_v3_score": 10.0,
+    "severity": "CRITICAL",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2021-44228"
+    ],
+    "remediation": "Upgrade log4j-core to 2.17.1 or set log4j2.formatMsgNoLookups=true."
+  },
+  {
+    "id": "CVE-2024-21626",
+    "source": "NVD",
+    "published_at": "2024-01-31T00:00:00Z",
+    "modified_at": "2024-02-05T00:00:00Z",
+    "description": "runc internal file descriptor leak (WORKDIR break-out) vulnerability allowing container escape to host root filesystem.",
+    "cwe_ids": ["CWE-22", "CWE-403"],
+    "cvss_v3_score": 8.6,
+    "severity": "HIGH",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+    "references": [
+      "https://github.com/opencontainers/runc/security/advisories/GHSA-xr7r-f8xq-vfvv"
+    ],
+    "remediation": "Upgrade runc to version 1.1.12 or later."
+  }
+]
