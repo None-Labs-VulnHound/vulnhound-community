@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/None-Labs-VulnHound/vulnhound-community/pkg/ai"
 	"github.com/None-Labs-VulnHound/vulnhound-community/pkg/cwe"
 	"github.com/None-Labs-VulnHound/vulnhound-community/pkg/mcp"
 	"github.com/None-Labs-VulnHound/vulnhound-community/pkg/models"
@@ -20,8 +21,9 @@ import (
 var embeddedSeedData []byte
 
 var (
-	engine     *rag.Engine
-	dispatcher *secretops.Dispatcher
+	engine       *rag.Engine
+	dispatcher   *secretops.Dispatcher
+	gemmaAdvisor *ai.GemmaAdvisor
 )
 
 func init() {
@@ -43,6 +45,7 @@ func init() {
 
 	engine = rag.NewEngine(vulns)
 	dispatcher = secretops.NewDispatcher("limmireu1214@gmail.com")
+	gemmaAdvisor = ai.NewGemmaAdvisor("", os.Getenv("GEMMA_API_KEY"))
 }
 
 func main() {
@@ -126,16 +129,42 @@ func runAdvisoryCLI(args []string) {
 	repo := fs.String("repo", "", "Target repo (e.g. owner/repo)")
 	title := fs.String("title", "", "Advisory title")
 	cveID := fs.String("cve", "", "Associated CVE ID")
+	lang := fs.String("lang", "en", "Target language for Gemma 4 (en, ko, ja)")
 	severity := fs.String("severity", "HIGH", "Severity (CRITICAL, HIGH, MEDIUM)")
-	summary := fs.String("summary", "", "Vulnerability summary")
+	summary := fs.String("summary", "", "Vulnerability summary (optional if CVE is provided)")
 	poc := fs.String("poc", "", "Confidential PoC description")
 	remediation := fs.String("remediation", "", "Mitigation advice")
 	_ = fs.Parse(args)
 
-	if *repo == "" || *title == "" {
-		fmt.Println("Error: --repo and --title are required.")
+	if *repo == "" || (*title == "" && *cveID == "") {
+		fmt.Println("Error: --repo and either --title or --cve are required.")
 		fs.Usage()
 		return
+	}
+
+	if *title == "" {
+		*title = fmt.Sprintf("Security Vulnerability Advisory: %s", *cveID)
+	}
+
+	// Enrich with RAG data & Gemma 4 if CVE ID is given
+	if *cveID != "" {
+		res := engine.Search(models.SearchQuery{CVEID: *cveID})
+		if len(res) > 0 {
+			targetVuln := res[0].Vulnerability
+			targetCWE := res[0].CWEInfo
+			if *summary == "" {
+				*summary = targetVuln.Description
+			}
+			if *remediation == "" {
+				*remediation = targetVuln.Remediation
+			}
+
+			// Generate multilingual structured advisory with Gemma 4
+			gemmaAdvisory, err := gemmaAdvisor.RequestAdvisory(targetVuln, targetCWE, *lang)
+			if err == nil && gemmaAdvisory != "" {
+				*summary = gemmaAdvisory
+			}
+		}
 	}
 
 	req := models.SecretAdvisoryRequest{

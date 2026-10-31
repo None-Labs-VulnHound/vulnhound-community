@@ -88,6 +88,9 @@ NoneLabs VulnHound는 오픈소스 커뮤니티의 방어 중심 지식 확산�
   * 키워드, CVSS 메트릭, CWE ID, 자연어 벡터 유사도를 결합하여 오프라인 환경에서도 50ms 이내에 최적의 보안 완화책 도출.
 * 🛡️ **MITRE CWE 대응 가이드 기본 내장**:
   * CWE Top 25 주요 취약점 클래스에 대해 설계 및 코드 레벨의 구체적인 방어 지침(Mitigations) 제공.
+* 🌐 **Gemma 4 다국어 보안 권고문 생성 (Multilingual Advisory AI)**:
+  * Google의 차세대 경량 고성능 다국어 파운데이션 모델인 **Gemma 4**를 전담 Advisory Generation Engine으로 채택.
+  * CVE/CWE RAG 검색 결과를 바탕으로 한국어, 영어, 일본어 등 글로벌 표준 보안 권고문을 자동 생성 및 번역 렌더링.
 * 🔒 **Confidential Secret Ops (제로데이 노출 방지)**:
   * 취약점 발견 시 일반 공개 Issue에 노출하지 않고, 비공개 상태인 **GitHub Security Advisories** 및 **GitLab Confidential Issues / MRs (`-c`)**로 안전하게 보고서 발송.
 * 🔌 **Model Context Protocol (MCP) 표준 호환**:
