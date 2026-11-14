@@ -19,13 +19,13 @@ on:
           - ja
           - zh
       deploy_mode:
-        description: 'Deployment Strategy: A (Wiki Git) or B (Repo docs/Home.md fallback)'
+        description: 'Deployment Strategy: B (Repo docs/Home.md) or A (Wiki Git)'
         required: false
-        default: 'A'
+        default: 'B'
         type: choice
         options:
-          - A
           - B
+          - A
 
 permissions:
   contents: write
@@ -67,18 +67,18 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GEMINI_MODEL: "gemma-4-26b-a4b-it"
           DOCS_LANGUAGE: ${{ inputs.language || 'ko' }}
-          DEPLOY_MODE: ${{ inputs.deploy_mode || 'A' }}
+          DEPLOY_MODE: ${{ inputs.deploy_mode || 'B' }}
         run: |
           set -euo pipefail
           TARGET_LANG="${DOCS_LANGUAGE:-ko}"
-          TARGET_MODE="${DEPLOY_MODE:-A}"
+          TARGET_MODE="${DEPLOY_MODE:-B}"
           
           echo "=========================================================================="
           echo "🚀 Executing auto-docs Documentation Generation for ${GITHUB_REPOSITORY}"
           echo "   • Trigger Event: ${{ github.event_name }}"
           echo "   • Release Tag:   ${{ github.ref_name }}"
           echo "   • Language:      ${TARGET_LANG}"
-          echo "   • Mode:          ${TARGET_MODE}"
+          echo "   • Deploy Mode:   ${TARGET_MODE} (Option B: docs/Home.md in repo)"
           echo "=========================================================================="
 
           auto-docs -lang "${TARGET_LANG}" -mode "${TARGET_MODE}"
