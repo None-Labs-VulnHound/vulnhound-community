@@ -1,0 +1,69 @@
+name: 'NoneLabs VulnHound Security Audit'
+description: 'Zero-Cloud AppSec Vector RAG & Gemma 4 Security Audit Action'
+author: 'limmireu1214@gmail.com'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  target:
+    description: 'Target source code file or directory to audit'
+    required: false
+    default: 'src/app.py'
+  gemini-api-key:
+    description: 'Google AI Studio Gemini / Gemma API Key'
+    required: true
+  output:
+    description: 'File path to write the security advisory report'
+    required: false
+    default: 'security_advisory_report.md'
+  create-issue:
+    description: 'Whether to automatically dispatch a GitHub issue if vulnerabilities are found'
+    required: false
+    default: 'false'
+  github-token:
+    description: 'GitHub token for creating alert issues (required if create-issue is true)'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go runtime
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24'
+
+    - name: Run VulnHound Security Audit
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        set -euo pipefail
+        RUNNER_DIR=$(mktemp -d)
+        git clone --depth 1 https://github.com/None-Labs-VulnHound/vulnhound-ops-tester.git "$RUNNER_DIR"
+        cd "$RUNNER_DIR"
+        go build -ldflags="-s -w" -o /tmp/vulnhound-runner ./cmd/runner
+        cd - > /dev/null
+
+        EXTRA_ARGS=()
+        if [ "${{ inputs.create-issue }}" = "true" ]; then
+          EXTRA_ARGS+=("-create-issue")
+        fi
+
+        /tmp/vulnhound-runner \
+          -target "${{ inputs.target }}" \
+          -out "${{ inputs.output }}" \
+          -repo "${{ github.repository }}" \
+          "${EXTRA_ARGS[@]}"
+
+    - name: Publish Step Summary
+      shell: bash
+      run: |
+        if [ -f "${{ inputs.output }}" ]; then
+          echo "### 🛡️ VulnHound Security Advisory Audit" >> $GITHUB_STEP_SUMMARY
+          cat "${{ inputs.output }}" >> $GITHUB_STEP_SUMMARY
+        fi
