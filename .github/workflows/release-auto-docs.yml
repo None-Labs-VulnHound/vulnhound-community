@@ -1,0 +1,84 @@
+name: Release Auto-Docs (Wiki & Documentation Generator)
+
+on:
+  release:
+    types: [ published ]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      language:
+        description: 'Documentation Language (ko, en, ja, zh)'
+        required: false
+        default: 'ko'
+        type: choice
+        options:
+          - ko
+          - en
+          - ja
+          - zh
+      deploy_mode:
+        description: 'Deployment Strategy: A (Wiki Git) or B (Repo docs/Home.md fallback)'
+        required: false
+        default: 'A'
+        type: choice
+        options:
+          - A
+          - B
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  auto-docs:
+    name: Generate & Deploy Documentation via auto-docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Full Commit & Tag History
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go Runtime
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Install auto-docs CLI Engine
+        run: |
+          set -euo pipefail
+          echo "[+] Fetching and compiling auto-docs engine from mireu-workflow/auto-docs..."
+          TEMP_DIR=$(mktemp -d)
+          git clone --depth 1 https://github.com/mireu-workflow/auto-docs.git "$TEMP_DIR"
+          cd "$TEMP_DIR"
+          go build -ldflags="-w -s" -o /usr/local/bin/auto-docs main.go
+          cd - > /dev/null
+          rm -rf "$TEMP_DIR"
+          echo "[+] auto-docs binary installed at /usr/local/bin/auto-docs"
+
+      - name: Run auto-docs & Publish Documentation
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GEMINI_MODEL: "gemma-4-26b-a4b-it"
+          DOCS_LANGUAGE: ${{ inputs.language || 'ko' }}
+          DEPLOY_MODE: ${{ inputs.deploy_mode || 'A' }}
+        run: |
+          set -euo pipefail
+          TARGET_LANG="${DOCS_LANGUAGE:-ko}"
+          TARGET_MODE="${DEPLOY_MODE:-A}"
+          
+          echo "=========================================================================="
+          echo "🚀 Executing auto-docs Documentation Generation for ${GITHUB_REPOSITORY}"
+          echo "   • Trigger Event: ${{ github.event_name }}"
+          echo "   • Release Tag:   ${{ github.ref_name }}"
+          echo "   • Language:      ${TARGET_LANG}"
+          echo "   • Mode:          ${TARGET_MODE}"
+          echo "=========================================================================="
+
+          auto-docs -lang "${TARGET_LANG}" -mode "${TARGET_MODE}"

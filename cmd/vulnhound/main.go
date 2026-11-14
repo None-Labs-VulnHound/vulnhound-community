@@ -64,7 +64,7 @@ func main() {
 			runAdvisoryCLI(os.Args[2:])
 			return
 		case "version", "-v":
-			fmt.Println("NoneLabs VulnHound Community v1.0.0 (Zero-Cloud Edition)")
+			fmt.Println("NoneLabs VulnHound Community v1.2.0 (Zero-Cloud Edition)")
 			return
 		case "help", "-h", "--help":
 			printHelp()
