@@ -35,6 +35,10 @@ jobs:
   auto-docs:
     name: Generate & Deploy Documentation via auto-docs
     runs-on: ubuntu-latest
+    environment: AUTO DOCS
+    permissions:
+      contents: write
+      issues: write
 
     steps:
       - name: Checkout Full Commit & Tag History
@@ -79,6 +83,7 @@ jobs:
           echo "   • Release Tag:   ${{ github.ref_name }}"
           echo "   • Language:      ${TARGET_LANG}"
           echo "   • Deploy Mode:   ${TARGET_MODE} (Option B: docs/Home.md in repo)"
+          echo "   • Environment:   AUTO DOCS"
           echo "=========================================================================="
 
           auto-docs -lang "${TARGET_LANG}" -mode "${TARGET_MODE}"
